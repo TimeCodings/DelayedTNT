@@ -1,0 +1,12 @@
+#The delay of the tnt(s) to spawn
+#Set it to 0 to disable the delay
+DelayInTicks: 0
+#Set the default fuze-time
+Fuze: 20
+#Configurate a permission to use the command (/spawntnt (<Amount>) (<Player>))
+Permission:
+  Enabled: true
+  Perm: "delayedtnt.use"
+#DON'T CHANGE THIS
+#AFTER DELETING THE CONFIG WON'T EXIST ANYMORE
+config-version: 1.0

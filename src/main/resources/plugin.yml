@@ -1,0 +1,11 @@
+name: DelayedTNT
+version: '${project.version}'
+main: de.timecoding.delayedtnt.DelayedTNT
+api-version: 1.19
+description: "A plugin which spawns a delayed tnt"
+
+commands:
+  spawntnt:
+    aliases:
+      - tnt
+    description: "A command which allows players to spawn a delayed tnt"
