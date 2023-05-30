@@ -8,8 +8,8 @@ A simple plugin to simplify TNT-Spawning in Minecraft. This plugin is also able 
 **4.** You're ready to go!<br>
 
 **How to use it?:** <br>
-Simply use the command **/tnt <Amount> <PlayerName>** to spawn/delay (a) tnt(s)<br>
-**Side-Note:** <Amount> and <PlayerName> aren't necessary
+Simply use the command **/tnt Amount PlayerName** to spawn/delay (a) tnt(s)<br>
+**Side-Note:** Amount and PlayerName aren't necessary
 
 **How can I change the delay, the fuzing-time or the Permission?:** <br>
 All of this options can be changed in the **config.yml** which can be found in the **DelayedTNT** folder (in the plugins folder of your Minecraft-Server) <br>
