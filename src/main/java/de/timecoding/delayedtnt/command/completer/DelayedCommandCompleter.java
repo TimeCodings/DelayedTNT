@@ -26,10 +26,18 @@ public class DelayedCommandCompleter implements TabCompleter {
                 list.add("10");
                 list.add("100");
                 list.add("1000");
-            }else if(strings.length == 2){
+                list.add("help");
+            }else if(strings.length == 2 || strings.length == 4) {
                 Bukkit.getOnlinePlayers().forEach(player -> list.add(player.getName()));
             }
-        }
+            if(strings.length == 2 || strings.length == 3){
+                list.add("10");
+                list.add("20");
+                list.add("30");
+                list.add("40");
+                list.add("50");
+            }
+            }
         return list;
     }
 }

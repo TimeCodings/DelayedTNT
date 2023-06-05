@@ -14,24 +14,31 @@ public class DelayedCommand implements CommandExecutor {
         this.plugin = plugin;
     }
 
+    private String help = "§fCommands: \n §e/tnt <Amount> - Spawns multiple TNT with the delay set in the config.yml \n /tnt <Amount> <Player> - Spawns multiple TNT for a specific player \n /tnt <Amount> <Delay> <Fuse> - Spawns multiple TNT with a custom delay and fuse \n /tnt <Amount> <Delay> <Fuse> <Player> - Spawns multiple TNT with a custom delay and fuse for a specific player";
+
     @Override
     public boolean onCommand(CommandSender commandSender, org.bukkit.command.Command command, String s, String[] strings) {
         if(this.plugin.hasPermission(commandSender)) {
             if (strings.length == 1) {
-                if (isInteger(strings[0])) {
-                    if (Integer.parseInt(strings[0]) >= 1) {
-                        Integer integer = Integer.parseInt(strings[0]);
-                        this.plugin.setQueue(this.plugin.getQueue() + integer);
-                        commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT!");
+                if(!strings[0].equalsIgnoreCase("help")) {
+                    if (isInteger(strings[0])) {
+                        if (Integer.parseInt(strings[0]) >= 1) {
+                            Integer integer = Integer.parseInt(strings[0]);
+                            this.plugin.addQueue(this.plugin.getQueue() + integer);
+                            commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT!");
+                        } else {
+                            commandSender.sendMessage("§cPlease use a number over zero");
+                        }
                     } else {
-                        commandSender.sendMessage("§cPlease use a number over zero");
+                        commandSender.sendMessage("§cPlease use a number as an argument!");
                     }
-                } else {
-                    commandSender.sendMessage("§cPlease use a number as an argument!");
+                }else{
+                    commandSender.sendMessage(help);
                 }
             } else if (strings.length == 0) {
-                this.plugin.setQueue(this.plugin.getQueue() + 1);
+                this.plugin.addQueue(this.plugin.getQueue() + 1);
                 commandSender.sendMessage("§aSuccessfully delayed §e1 §cTNT!");
+                commandSender.sendMessage("§eIf you wanted to open the help try §f/tnt help");
             } else if (strings.length == 2) {
                 if (isInteger(strings[0])) {
                     if (Integer.parseInt(strings[0]) >= 1) {
@@ -44,7 +51,7 @@ public class DelayedCommand implements CommandExecutor {
                                 this.plugin.getPlayerQueue().remove(target);
                             }
                             this.plugin.getPlayerQueue().put(target, (playerQueue + integer));
-                            this.plugin.start();
+                            this.plugin.restart();
                             commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT §afor the player §e" + target.getName() + "!");
                         } else {
                             commandSender.sendMessage("§cThis player isn't online or does not exist!");
@@ -55,8 +62,59 @@ public class DelayedCommand implements CommandExecutor {
                 } else {
                     commandSender.sendMessage("§cPlease use a number as an argument!");
                 }
-            } else {
-                commandSender.sendMessage("§cPlease use: /spawntnt (<Amount>) (<PlayerName>)");
+            } else if(strings.length == 3) {
+                if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
+                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 1){
+                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 1){
+                            Integer tnt = Integer.parseInt(strings[0]);
+                            Integer delay = Integer.parseInt(strings[1]);
+                            Integer fuse = Integer.parseInt(strings[2]);
+                            this.plugin.setDelay(delay);
+                            this.plugin.setFuse(fuse);
+                            this.plugin.addQueue(tnt);
+                            commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e"+delay+" §aand the fuse §e"+fuse+"!");
+                        }else{
+                            commandSender.sendMessage("§cThe fuse-time must be a number over 0");
+                        }
+                    }else{
+                        commandSender.sendMessage("§cThe delay in ticks must be a number over 0");
+                    }
+                }else{
+                    commandSender.sendMessage("§cThe TNT-Amount must be a number over 0");
+                }
+            }else if(strings.length == 4) {
+                if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
+                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 1){
+                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 1){
+                            Player target = Bukkit.getPlayer(strings[3]);
+                            if (target != null && target.isOnline()) {
+                                Integer tnt = Integer.parseInt(strings[0]);
+                                Integer delay = Integer.parseInt(strings[1]);
+                                Integer fuse = Integer.parseInt(strings[2]);
+                                this.plugin.setDelay(delay);
+                                this.plugin.setFuse(fuse);
+                                Integer playerQueue = 0;
+                                if (this.plugin.getPlayerQueue().containsKey(target)) {
+                                    playerQueue = this.plugin.getPlayerQueue().get(target);
+                                    this.plugin.getPlayerQueue().remove(target);
+                                }
+                                this.plugin.getPlayerQueue().put(target, (playerQueue + tnt));
+                                this.plugin.restart();
+                                commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e" + delay + " §aand the fuse §e" + fuse + " §afor the player §e"+target.getName()+"!");
+                            } else {
+                                commandSender.sendMessage("§cThis player isn't online or does not exist!");
+                            }
+                        }else{
+                            commandSender.sendMessage("§cThe fuse-time must be a number over 0");
+                        }
+                    }else{
+                        commandSender.sendMessage("§cThe delay in ticks must be a number over 0");
+                    }
+                }else{
+                    commandSender.sendMessage("§cThe TNT-Amount must be a number over 0");
+                }
+            }else{
+                commandSender.sendMessage(help);
             }
         }else{
             commandSender.sendMessage("§cYou do not have the permission to use that command!");
