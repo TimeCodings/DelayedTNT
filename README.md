@@ -16,10 +16,10 @@ All of this options can be changed in the **config.yml** which can be found in t
 **Note:** The delay must be configurated in ticks! 20 Ticks = 1 Second
 
 **Commands:** <br>
-/tnt <Amount> - Spawns multiple TNT with the delay set in the config.yml <br>
-/tnt <Amount> <Player> - Spawns multiple TNT for a specific player <br>
-/tnt <Amount> <Delay> <Fuse> - Spawns multiple TNT with a custom delay and fuse <br>
-/tnt <Amount> <Delay> <Fuse> <Player> - Spawns multiple TNT with a custom delay and fuse for a specific player <br>
+/tnt < Amount > - Spawns multiple TNT with the delay set in the config.yml <br>
+/tnt < Amount > < Player > - Spawns multiple TNT for a specific player <br>
+/tnt < Amount > < Delay > < Fuse > - Spawns multiple TNT with a custom delay and fuse <br>
+/tnt < Amount > < Delay > < Fuse > < Player > - Spawns multiple TNT with a custom delay and fuse for a specific player <br>
 
 **Support:**
 You got any wishes or found any bug? Feel free to join my discord: https://discord.tikmc.de/
