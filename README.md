@@ -15,6 +15,12 @@ Simply use the command **/tnt Amount PlayerName** to spawn/delay (a) tnt(s)<br>
 All of this options can be changed in the **config.yml** which can be found in the **DelayedTNT** folder (in the plugins folder of your Minecraft-Server) <br>
 **Note:** The delay must be configurated in ticks! 20 Ticks = 1 Second
 
+**Commands:**
+/tnt <Amount> - Spawns multiple TNT with the delay set in the config.yml
+/tnt <Amount> <Player> - Spawns multiple TNT for a specific player
+/tnt <Amount> <Delay> <Fuse> - Spawns multiple TNT with a custom delay and fuse
+/tnt <Amount> <Delay> <Fuse> <Player> - Spawns multiple TNT with a custom delay and fuse for a specific player
+
 **Support:**
 You got any wishes or found any bug? Feel free to join my discord: https://discord.tikmc.de/
 
