@@ -1,6 +1,6 @@
 #The delay of the tnt(s) to spawn
 #Set it to 0 to disable the delay
-DelayInTicks: 10
+DelayInSeconds: 10
 #Set the default fuze-time
 Fuse: 20
 #Configurate a permission to use the command (/spawntnt (<Amount>) (<Player>))

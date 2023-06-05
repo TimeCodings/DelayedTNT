@@ -87,7 +87,7 @@ public final class DelayedTNT extends JavaPlugin{
                     });
                     if(queue > 0) {
                         for(Player all : Bukkit.getOnlinePlayers()) {
-                            spawnTNT(all, fuse);
+                            spawnTNT(all, (fuse*20));
                         }
                         queue = ((queue - 1));
                     }
@@ -95,7 +95,7 @@ public final class DelayedTNT extends JavaPlugin{
                         stop();
                     }
                 }
-            }, 0 ,delay);
+            }, 0 ,(delay*20));
         }
     }
 

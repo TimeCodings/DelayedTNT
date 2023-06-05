@@ -64,8 +64,8 @@ public class DelayedCommand implements CommandExecutor {
                 }
             } else if(strings.length == 3) {
                 if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
-                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 1){
-                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 1){
+                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 0){
+                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 0){
                             Integer tnt = Integer.parseInt(strings[0]);
                             Integer delay = Integer.parseInt(strings[1]);
                             Integer fuse = Integer.parseInt(strings[2]);
@@ -74,18 +74,18 @@ public class DelayedCommand implements CommandExecutor {
                             this.plugin.addQueue(tnt);
                             commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e"+delay+" §aand the fuse §e"+fuse+"!");
                         }else{
-                            commandSender.sendMessage("§cThe fuse-time must be a number over 0");
+                            commandSender.sendMessage("§cThe fuse-time must be a number over -1");
                         }
                     }else{
-                        commandSender.sendMessage("§cThe delay in ticks must be a number over 0");
+                        commandSender.sendMessage("§cThe delay in seconds must be a number over -1");
                     }
                 }else{
                     commandSender.sendMessage("§cThe TNT-Amount must be a number over 0");
                 }
             }else if(strings.length == 4) {
                 if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
-                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 1){
-                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 1){
+                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 0){
+                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 0){
                             Player target = Bukkit.getPlayer(strings[3]);
                             if (target != null && target.isOnline()) {
                                 Integer tnt = Integer.parseInt(strings[0]);
@@ -105,10 +105,10 @@ public class DelayedCommand implements CommandExecutor {
                                 commandSender.sendMessage("§cThis player isn't online or does not exist!");
                             }
                         }else{
-                            commandSender.sendMessage("§cThe fuse-time must be a number over 0");
+                            commandSender.sendMessage("§cThe fuse-time must be a number over -1");
                         }
                     }else{
-                        commandSender.sendMessage("§cThe delay in ticks must be a number over 0");
+                        commandSender.sendMessage("§cThe delay in seconds must be a number over -1");
                     }
                 }else{
                     commandSender.sendMessage("§cThe TNT-Amount must be a number over 0");
