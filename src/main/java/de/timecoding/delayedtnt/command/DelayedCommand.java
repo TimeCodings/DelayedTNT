@@ -26,6 +26,7 @@ public class DelayedCommand implements CommandExecutor {
                             Integer integer = Integer.parseInt(strings[0]);
                             this.plugin.addQueue(this.plugin.getQueue() + integer);
                             commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT!");
+                            this.plugin.restart();
                         } else {
                             commandSender.sendMessage("§cPlease use a number over zero");
                         }
@@ -37,6 +38,7 @@ public class DelayedCommand implements CommandExecutor {
                 }
             } else if (strings.length == 0) {
                 this.plugin.addQueue(this.plugin.getQueue() + 1);
+                this.plugin.restart();
                 commandSender.sendMessage("§aSuccessfully delayed §e1 §cTNT!");
                 commandSender.sendMessage("§eIf you wanted to open the help try §f/tnt help");
             } else if (strings.length == 2) {
@@ -44,15 +46,21 @@ public class DelayedCommand implements CommandExecutor {
                     if (Integer.parseInt(strings[0]) >= 1) {
                         Player target = Bukkit.getPlayer(strings[1]);
                         if (target != null && target.isOnline()) {
-                            Integer integer = Integer.parseInt(strings[0]);
-                            Integer playerQueue = 0;
-                            if (this.plugin.getPlayerQueue().containsKey(target)) {
-                                playerQueue = this.plugin.getPlayerQueue().get(target);
-                                this.plugin.getPlayerQueue().remove(target);
-                            }
-                            this.plugin.getPlayerQueue().put(target, (playerQueue + integer));
-                            this.plugin.restart();
-                            commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT §afor the player §e" + target.getName() + "!");
+                            this.plugin.stop();
+                            Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    Integer integer = Integer.parseInt(strings[0]);
+                                    Integer playerQueue = 0;
+                                    if (plugin.getPlayerQueue().containsKey(target)) {
+                                        playerQueue = plugin.getPlayerQueue().get(target);
+                                        plugin.getPlayerQueue().remove(target);
+                                    }
+                                    plugin.getPlayerQueue().put(target, (playerQueue + integer));
+                                    plugin.restart();
+                                    commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT §afor the player §e" + target.getName() + "!");
+                                }
+                            }, 20);
                         } else {
                             commandSender.sendMessage("§cThis player isn't online or does not exist!");
                         }
@@ -72,6 +80,7 @@ public class DelayedCommand implements CommandExecutor {
                             this.plugin.setDelay(delay);
                             this.plugin.setFuse(fuse);
                             this.plugin.addQueue(tnt);
+                            this.plugin.restart();
                             commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e"+delay+" §aand the fuse §e"+fuse+"!");
                         }else{
                             commandSender.sendMessage("§cThe fuse-time must be a number over -1");

@@ -14,6 +14,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.checkerframework.checker.units.qual.C;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 public final class DelayedTNT extends JavaPlugin{
 
@@ -75,19 +76,20 @@ public final class DelayedTNT extends JavaPlugin{
             this.bukkitTask = Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
                 @Override
                 public void run() {
-                    playerQueue.keySet().forEach(offlinePlayer -> {
+                    for (Iterator<OfflinePlayer> iterator = playerQueue.keySet().iterator(); iterator.hasNext(); ) {
+                        OfflinePlayer offlinePlayer = iterator.next();
                         if(offlinePlayer.isOnline()) {
                             Integer amount = playerQueue.get(offlinePlayer);
                             playerQueue.remove(offlinePlayer);
                             spawnTNT(offlinePlayer, fuse);
-                            if (amount > 0) {
+                            if (amount > 1) {
                                 playerQueue.put(offlinePlayer, (amount - 1));
                             }
                         }
-                    });
+                    }
                     if(queue > 0) {
                         for(Player all : Bukkit.getOnlinePlayers()) {
-                            spawnTNT(all, (fuse*20));
+                            spawnTNT(all, fuse);
                         }
                         queue = ((queue - 1));
                     }
@@ -99,11 +101,11 @@ public final class DelayedTNT extends JavaPlugin{
         }
     }
 
-    public void spawnTNT(OfflinePlayer offlinePlayer, Integer fuze){
-        Entity entity = offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation(), EntityType.AREA_EFFECT_CLOUD);
+    public void spawnTNT(OfflinePlayer offlinePlayer, Integer fuse){
+        Entity entity = offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, 1, 0), EntityType.AREA_EFFECT_CLOUD);
         ((AreaEffectCloud)entity).setDuration(0);
         TNTPrimed tntPrimed = ((TNTPrimed)offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, 1, 0), EntityType.PRIMED_TNT));
-        tntPrimed.setFuseTicks(fuze);
+        tntPrimed.setFuseTicks((fuse*20));
         entity.addPassenger(((Entity) tntPrimed));
     }
 
@@ -115,7 +117,7 @@ public final class DelayedTNT extends JavaPlugin{
         this.delay = delay;
     }
 
-    private void stop(){
+    public void stop(){
         if(isStarted()){
             bukkitTask.cancel();
             bukkitTask = null;
