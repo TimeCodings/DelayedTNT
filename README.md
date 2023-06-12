@@ -20,8 +20,8 @@ All of this options can be changed in the **config.yml** which can be found in t
 /tnt < Amount > < Player > - Spawns multiple TNT for a specific player <br>
 /tnt < Amount > < Delay > < Fuse > - Spawns multiple TNT with a custom delay and fuse <br>
 /tnt < Amount > < Delay > < Fuse > < Player > - Spawns multiple TNT with a custom delay and fuse for a specific player <br>
-/tnt help - Opens the help menu
-/tnt reload - Reloads the plugin
+/tnt help - Opens the help menu <br>
+/tnt reload - Reloads the plugin <br>
 
 **Support:**
 You got any wishes or found any bug? Feel free to join my discord: https://discord.tikmc.de/
