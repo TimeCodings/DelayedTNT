@@ -20,7 +20,7 @@ public class DelayedCommand implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, org.bukkit.command.Command command, String s, String[] strings) {
         if(this.plugin.hasPermission(commandSender)) {
             if (strings.length == 1) {
-                if(!strings[0].equalsIgnoreCase("help")) {
+                if(!strings[0].equalsIgnoreCase("help") && !strings[0].equalsIgnoreCase("reload")) {
                     if (isInteger(strings[0])) {
                         if (Integer.parseInt(strings[0]) >= 1) {
                             Integer integer = Integer.parseInt(strings[0]);
@@ -33,8 +33,13 @@ public class DelayedCommand implements CommandExecutor {
                     } else {
                         commandSender.sendMessage("§cPlease use a number as an argument!");
                     }
-                }else{
+                }else if(strings[0].equalsIgnoreCase("help")){
                     commandSender.sendMessage(help);
+                }else if(strings[0].equalsIgnoreCase("reload")){
+                    this.plugin.getConfigHandler().reload();
+                    commandSender.sendMessage("§aSuccessfully reloaded the §econfig.yml");
+                }else{
+                    commandSender.sendMessage("§c/tnt help");
                 }
             } else if (strings.length == 0) {
                 this.plugin.addQueue(this.plugin.getQueue() + 1);
@@ -72,10 +77,10 @@ public class DelayedCommand implements CommandExecutor {
                 }
             } else if(strings.length == 3) {
                 if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
-                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 0){
+                    if(isDouble(strings[1]) && (int)Double.parseDouble(strings[1]) >= 0){
                         if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 0){
                             Integer tnt = Integer.parseInt(strings[0]);
-                            Integer delay = Integer.parseInt(strings[1]);
+                            Double delay = Double.parseDouble(strings[1]);
                             Integer fuse = Integer.parseInt(strings[2]);
                             this.plugin.setDelay(delay);
                             this.plugin.setFuse(fuse);
@@ -93,12 +98,12 @@ public class DelayedCommand implements CommandExecutor {
                 }
             }else if(strings.length == 4) {
                 if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
-                    if(isInteger(strings[1]) && Integer.parseInt(strings[1]) >= 0){
+                    if(isDouble(strings[1]) && (int)Double.parseDouble(strings[1]) >= 0){
                         if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 0){
                             Player target = Bukkit.getPlayer(strings[3]);
                             if (target != null && target.isOnline()) {
                                 Integer tnt = Integer.parseInt(strings[0]);
-                                Integer delay = Integer.parseInt(strings[1]);
+                                Double delay = Double.parseDouble(strings[1]);
                                 Integer fuse = Integer.parseInt(strings[2]);
                                 this.plugin.setDelay(delay);
                                 this.plugin.setFuse(fuse);
@@ -134,6 +139,15 @@ public class DelayedCommand implements CommandExecutor {
     private boolean isInteger(String string){
         try {
             Integer.parseInt(string);
+            return true;
+        }catch (NumberFormatException exception){
+            return false;
+        }
+    }
+
+    private boolean isDouble(String string){
+        try {
+            Double.parseDouble(string);
             return true;
         }catch (NumberFormatException exception){
             return false;

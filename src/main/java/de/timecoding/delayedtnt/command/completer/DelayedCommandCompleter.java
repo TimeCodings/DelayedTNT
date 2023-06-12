@@ -27,6 +27,7 @@ public class DelayedCommandCompleter implements TabCompleter {
                 list.add("100");
                 list.add("1000");
                 list.add("help");
+                list.add("reload");
             }else if(strings.length == 2 || strings.length == 4) {
                 Bukkit.getOnlinePlayers().forEach(player -> list.add(player.getName()));
             }

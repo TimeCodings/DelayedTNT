@@ -3,25 +3,30 @@ package de.timecoding.delayedtnt;
 import de.timecoding.delayedtnt.command.DelayedCommand;
 import de.timecoding.delayedtnt.command.completer.DelayedCommandCompleter;
 import de.timecoding.delayedtnt.config.ConfigHandler;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.TNTPrimeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.checkerframework.checker.units.qual.C;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
-public final class DelayedTNT extends JavaPlugin{
+public final class DelayedTNT extends JavaPlugin implements Listener {
 
     private ConfigHandler configHandler;
 
     private Integer fuse = 0;
-    private Integer delay = 0;
+    private Double delay = 0.0;
 
     @Override
     public void onEnable() {
@@ -32,8 +37,9 @@ public final class DelayedTNT extends JavaPlugin{
         PluginCommand command = this.getCommand("spawntnt");
         command.setExecutor(new DelayedCommand(this));
         command.setTabCompleter(new DelayedCommandCompleter(this));
+        this.getServer().getPluginManager().registerEvents(this, this);
         this.fuse = this.getConfigHandler().getInteger("Fuse");
-        this.delay = this.getConfigHandler().getInteger("DelayInTicks");
+        this.delay = this.getConfigHandler().getConfig().getDouble("DelayInSeconds");
     }
 
     @Override
@@ -85,6 +91,8 @@ public final class DelayedTNT extends JavaPlugin{
                             if (amount > 1) {
                                 playerQueue.put(offlinePlayer, (amount - 1));
                             }
+                        }else{
+                            playerQueue.remove(offlinePlayer);
                         }
                     }
                     if(queue > 0) {
@@ -97,7 +105,17 @@ public final class DelayedTNT extends JavaPlugin{
                         stop();
                     }
                 }
-            }, 0 ,(delay*20));
+            }, 0 ,getDelay(this.delay));
+            System.out.println(getDelay(this.delay));
+        }
+    }
+
+    private Integer getDelay(Double doubleDelay){
+        String[] split = doubleDelay.toString().split("\\.");
+        if(!split[1].toString().startsWith("0")){
+            return (Integer.parseInt(split[0])*20)+(int)(Double.valueOf(String.valueOf("0."+(split[1])))*20);
+        }else{
+            return (Integer.parseInt(split[0])*20);
         }
     }
 
@@ -107,13 +125,113 @@ public final class DelayedTNT extends JavaPlugin{
         TNTPrimed tntPrimed = ((TNTPrimed)offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, 1, 0), EntityType.PRIMED_TNT));
         tntPrimed.setFuseTicks((fuse*20));
         entity.addPassenger(((Entity) tntPrimed));
+        if(this.configHandler.getBoolean("Firework.Enabled") && !this.configHandler.getBoolean("Firework.OnExplode")) {
+            detonateFirework(tntPrimed);
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event){
+        if(this.configHandler.getBoolean("Firework.Enabled") && this.configHandler.getBoolean("Firework.OnExplode") && event.getEntity().getType() == EntityType.PRIMED_TNT) {
+            detonateFirework((TNTPrimed) event.getEntity());
+        }
+    }
+
+    public void detonateFirework(TNTPrimed tntPrimed){
+        Location location = tntPrimed.getLocation();
+        Firework firework = (Firework) location.getWorld().spawnEntity(getCenterLocation(tntPrimed.getLocation()), EntityType.FIREWORK);
+        FireworkMeta fireworkMeta = firework.getFireworkMeta();
+        fireworkMeta.setPower(this.configHandler.getInteger("Firework.Power"));
+        this.getFireworkEffects().forEach(fireworkEffect -> {
+            fireworkMeta.addEffect(fireworkEffect);
+        });
+        firework.setFireworkMeta(fireworkMeta);
+        firework.detonate();
+    }
+
+    private Location getCenterLocation(Location location) {
+        return location.add(0.5, 1, 0.5);
+    }
+
+    private List<FireworkEffect> getFireworkEffects(){
+        List<Color> list = new ArrayList<>();
+        List<String> stringList = this.configHandler.getStringList("Firework.Colors");
+        List<FireworkEffect> fireworkEffects = new ArrayList<>();
+        if(stringList != null){
+            stringList.forEach(s -> {
+                fireworkEffects.add(FireworkEffect.builder().withColor(getColor(s)).build());
+            });
+        }
+        return fireworkEffects;
+    }
+
+    private Color getColor(String s){
+        List<Color> list = new ArrayList<>();
+        switch (s){
+            case "RED":
+                list.add(Color.RED);
+                break;
+            case "AQUA":
+                list.add(Color.AQUA);
+                break;
+            case "BLUE":
+                list.add(Color.BLUE);
+                break;
+            case "LIME":
+                list.add(Color.LIME);
+                break;
+            case "OLIVE":
+                list.add(Color.OLIVE);
+                break;
+            case "ORANGE":
+                list.add(Color.ORANGE);
+                break;
+            case "PURPLE":
+                list.add(Color.PURPLE);
+                break;
+            case "WHITE":
+                list.add(Color.WHITE);
+                break;
+            case "BLACK":
+                list.add(Color.BLACK);
+                break;
+            case "FUCHSIA":
+                list.add(Color.FUCHSIA);
+                break;
+            case "GREY":
+                list.add(Color.GRAY);
+                break;
+            case "GREEN":
+                list.add(Color.GREEN);
+                break;
+            case "MAROON":
+                list.add(Color.MAROON);
+                break;
+            case "NAVY":
+                list.add(Color.NAVY);
+                break;
+            case "SILVER":
+                list.add(Color.SILVER);
+                break;
+            case "YELLOW":
+                list.add(Color.YELLOW);
+                break;
+            case "TEAL":
+                list.add(Color.TEAL);
+                break;
+        }
+        if(list.size() == 0) {
+            return Color.GRAY;
+        }else{
+            return list.get(0);
+        }
     }
 
     public void setFuse(Integer fuse) {
         this.fuse = fuse;
     }
 
-    public void setDelay(Integer delay) {
+    public void setDelay(Double delay) {
         this.delay = delay;
     }
 

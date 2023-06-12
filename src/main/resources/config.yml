@@ -1,12 +1,25 @@
 #The delay of the tnt(s) to spawn in seconds
 #Set it to 0 to disable the delay
-DelayInSeconds: 2
+DelayInSeconds: 2.0
 #Set the default fuze-time in seconds
 Fuse: 2
+#Configurate firework effects when a tnt got spawned
+Firework:
+  #Enable it by setting it to "true"
+  Enabled: true
+  #Set the power of the effect (1-Unlimited)
+  Power: 1
+  #Set this to true if the effects should only be shown on tnt explode
+  OnExplode: true
+  #Set the colors of the firework
+  Colors:
+    - "RED"
+    - "ORANGE"
+    - "YELLOW"
 #Configurate a permission to use the command (/spawntnt (<Amount>) (<Player>))
 Permission:
   Enabled: true
   Perm: "delayedtnt.use"
 #DON'T CHANGE THIS
 #AFTER DELETING THE CONFIG WON'T EXIST ANYMORE
-config-version: 1.1
+config-version: 1.0
