@@ -3,6 +3,13 @@
 DelayInSeconds: 2.0
 #Set the default fuze-time in seconds
 Fuse: 2
+#Change the position where the tnt should spawn
+#Side-Node: Set Subtract and Add to 0 if you want to spawn the TNT inside the player
+Position:
+  #TNT-Spawnlocation: The player position - Subtractvalue
+  Subtract: 1
+  #TNT-Spawnlocation: The player position + Addvalue
+  Add: 0
 #Configurate firework effects when a tnt got spawned
 Firework:
   #Enable it by setting it to "true"
@@ -22,4 +29,4 @@ Permission:
   Perm: "delayedtnt.use"
 #DON'T CHANGE THIS
 #AFTER DELETING THE CONFIG WON'T EXIST ANYMORE
-config-version: 1.0
+config-version: 1.1

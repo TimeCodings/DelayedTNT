@@ -1,5 +1,5 @@
 name: DelayedTNT
-version: 1.2
+version: 1.2.1
 main: de.timecoding.delayedtnt.DelayedTNT
 api-version: 1.13
 description: "A plugin which is able to spawn delayed tnt"

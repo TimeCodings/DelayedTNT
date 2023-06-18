@@ -120,9 +120,11 @@ public final class DelayedTNT extends JavaPlugin implements Listener {
     }
 
     public void spawnTNT(OfflinePlayer offlinePlayer, Integer fuse){
-        Entity entity = offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, 1, 0), EntityType.AREA_EFFECT_CLOUD);
+        Integer subtract = this.getConfigHandler().getInteger("Position.Subtract");
+        Integer add = this.getConfigHandler().getInteger("Position.Add");
+        Entity entity = offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, subtract, 0).add(0, add, 0), EntityType.AREA_EFFECT_CLOUD);
         ((AreaEffectCloud)entity).setDuration(0);
-        TNTPrimed tntPrimed = ((TNTPrimed)offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, 1, 0), EntityType.PRIMED_TNT));
+        TNTPrimed tntPrimed = ((TNTPrimed)offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, subtract, 0).add(0, add, 0), EntityType.PRIMED_TNT));
         tntPrimed.setFuseTicks((fuse*20));
         entity.addPassenger(((Entity) tntPrimed));
         if(this.configHandler.getBoolean("Firework.Enabled") && !this.configHandler.getBoolean("Firework.OnExplode")) {
