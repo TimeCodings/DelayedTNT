@@ -25,8 +25,10 @@ public class DelayedCommand implements CommandExecutor {
                         if (Integer.parseInt(strings[0]) >= 1) {
                             Integer integer = Integer.parseInt(strings[0]);
                             this.plugin.addQueue(this.plugin.getQueue() + integer);
-                            commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT!");
                             this.plugin.restart();
+                            if(messageEnabled()) {
+                                commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT!");
+                            }
                         } else {
                             commandSender.sendMessage("§cPlease use a number over zero");
                         }
@@ -44,8 +46,10 @@ public class DelayedCommand implements CommandExecutor {
             } else if (strings.length == 0) {
                 this.plugin.addQueue(this.plugin.getQueue() + 1);
                 this.plugin.restart();
-                commandSender.sendMessage("§aSuccessfully delayed §e1 §cTNT!");
-                commandSender.sendMessage("§eIf you wanted to open the help try §f/tnt help");
+                if(messageEnabled()) {
+                    commandSender.sendMessage("§aSuccessfully delayed §e1 §cTNT!");
+                    commandSender.sendMessage("§eIf you wanted to open the help try §f/tnt help");
+                }
             } else if (strings.length == 2) {
                 if (isInteger(strings[0])) {
                     if (Integer.parseInt(strings[0]) >= 1) {
@@ -63,7 +67,9 @@ public class DelayedCommand implements CommandExecutor {
                                     }
                                     plugin.getPlayerQueue().put(target, (playerQueue + integer));
                                     plugin.restart();
-                                    commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT §afor the player §e" + target.getName() + "!");
+                                    if(messageEnabled()) {
+                                        commandSender.sendMessage("§aSuccessfully delayed §e" + integer + " §cTNT §afor the player §e" + target.getName() + "!");
+                                    }
                                 }
                             }, 20);
                         } else {
@@ -78,15 +84,17 @@ public class DelayedCommand implements CommandExecutor {
             } else if(strings.length == 3) {
                 if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
                     if(isDouble(strings[1]) && (int)Double.parseDouble(strings[1]) >= 0){
-                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 0){
+                        if(isDouble(strings[2]) && (int)Double.parseDouble(strings[2]) >= 0){
                             Integer tnt = Integer.parseInt(strings[0]);
                             Double delay = Double.parseDouble(strings[1]);
-                            Integer fuse = Integer.parseInt(strings[2]);
+                            Double fuse = Double.parseDouble(strings[2]);
                             this.plugin.setDelay(delay);
                             this.plugin.setFuse(fuse);
                             this.plugin.addQueue(tnt);
                             this.plugin.restart();
-                            commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e"+delay+" §aand the fuse §e"+fuse+"!");
+                            if(messageEnabled()) {
+                                commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e" + delay + " §aand the fuse §e" + fuse + "!");
+                            }
                         }else{
                             commandSender.sendMessage("§cThe fuse-time must be a number over -1");
                         }
@@ -99,12 +107,12 @@ public class DelayedCommand implements CommandExecutor {
             }else if(strings.length == 4) {
                 if(isInteger(strings[0]) && Integer.parseInt(strings[0]) >= 1){
                     if(isDouble(strings[1]) && (int)Double.parseDouble(strings[1]) >= 0){
-                        if(isInteger(strings[2]) && Integer.parseInt(strings[2]) >= 0){
+                        if(isDouble(strings[2]) && (int)Double.parseDouble(strings[2]) >= 0){
                             Player target = Bukkit.getPlayer(strings[3]);
                             if (target != null && target.isOnline()) {
                                 Integer tnt = Integer.parseInt(strings[0]);
                                 Double delay = Double.parseDouble(strings[1]);
-                                Integer fuse = Integer.parseInt(strings[2]);
+                                Double fuse = Double.parseDouble(strings[2]);
                                 this.plugin.setDelay(delay);
                                 this.plugin.setFuse(fuse);
                                 Integer playerQueue = 0;
@@ -114,7 +122,9 @@ public class DelayedCommand implements CommandExecutor {
                                 }
                                 this.plugin.getPlayerQueue().put(target, (playerQueue + tnt));
                                 this.plugin.restart();
-                                commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e" + delay + " §aand the fuse §e" + fuse + " §afor the player §e"+target.getName()+"!");
+                                if(messageEnabled()) {
+                                    commandSender.sendMessage("§aSuccessfully delayed §e" + tnt + " §cTNT §awith the delay §e" + delay + " §aand the fuse §e" + fuse + " §afor the player §e" + target.getName() + "!");
+                                }
                             } else {
                                 commandSender.sendMessage("§cThis player isn't online or does not exist!");
                             }
@@ -134,6 +144,13 @@ public class DelayedCommand implements CommandExecutor {
             commandSender.sendMessage("§cYou do not have the permission to use that command!");
         }
         return false;
+    }
+
+    private boolean messageEnabled(){
+        if(this.plugin.getConfigHandler().keyExists("DisableMessage")){
+            return !(this.plugin.getConfigHandler().getBoolean("DisableMessage"));
+        }
+        return true;
     }
 
     private boolean isInteger(String string){
