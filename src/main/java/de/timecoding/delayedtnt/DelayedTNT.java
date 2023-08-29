@@ -1,30 +1,27 @@
 package de.timecoding.delayedtnt;
 
 import de.timecoding.delayedtnt.command.DelayedCommand;
+import de.timecoding.delayedtnt.command.TNTRainCommand;
 import de.timecoding.delayedtnt.command.completer.DelayedCommandCompleter;
 import de.timecoding.delayedtnt.config.ConfigHandler;
 import org.bukkit.*;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.TNTPrimeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public final class DelayedTNT extends JavaPlugin implements Listener {
 
     private ConfigHandler configHandler;
-
     private Double fuse = 0.0;
     private Double delay = 0.0;
 
@@ -37,6 +34,11 @@ public final class DelayedTNT extends JavaPlugin implements Listener {
         PluginCommand command = this.getCommand("spawntnt");
         command.setExecutor(new DelayedCommand(this));
         command.setTabCompleter(new DelayedCommandCompleter(this));
+        //PluginCommand subCommand = this.getCommand("tntatcoords");
+        //subCommand.setExecutor(new DelayedAtCoordsCommand(this));
+        PluginCommand tntRain = this.getCommand("tntrain");
+        tntRain.setExecutor(new TNTRainCommand(this));
+        tntRain.setTabCompleter(new DelayedCommandCompleter(this));
         this.getServer().getPluginManager().registerEvents(this, this);
         this.fuse = this.getConfigHandler().getConfig().getDouble("Fuse");
         this.delay = this.getConfigHandler().getConfig().getDouble("DelayInSeconds");
@@ -47,28 +49,32 @@ public final class DelayedTNT extends JavaPlugin implements Listener {
         Bukkit.getConsoleSender().sendMessage("§eDelayedTNT §cby TimeCode was disabled!");
     }
 
-    private Integer queue = 0;
-    private HashMap<OfflinePlayer, Integer> playerQueue = new HashMap<>();
+    private List<String> queue = new ArrayList<>();
+    private HashMap<OfflinePlayer, HashMap<Integer, String>> playerQueue = new HashMap<>();
+    private HashMap<Location, Integer> locationMap = new HashMap<>();
     private BukkitTask bukkitTask;
 
     public Integer getQueue() {
-        return queue;
+        return queue.size();
     }
 
     public ConfigHandler getConfigHandler() {
         return configHandler;
     }
 
-    public void addQueue(Integer queue) {
-        this.queue = (this.queue+queue);
+    public void addQueue(Integer queue, String text) {
+        while (queue > 0){
+            queue--;
+            this.queue.add(text);
+        }
         restart();
     }
 
-    public HashMap<OfflinePlayer, Integer> getPlayerQueue() {
+    public HashMap<OfflinePlayer, HashMap<Integer, String>> getPlayerQueue() {
         return playerQueue;
     }
 
-    public void setPlayerQueue(HashMap<OfflinePlayer, Integer> playerQueue) {
+    public void setPlayerQueue(HashMap<OfflinePlayer, HashMap<Integer, String>> playerQueue) {
         this.playerQueue = playerQueue;
         restart();
     }
@@ -78,30 +84,60 @@ public final class DelayedTNT extends JavaPlugin implements Listener {
     }
 
     public void start(){
-        if(!isStarted() && this.queue > 0 || !isStarted() && this.playerQueue.size() > 0){
+        if(!isStarted() && this.queue.size() > 0 || !isStarted() && this.playerQueue.size() > 0 || !isStarted() && this.getLocationMap().size() > 0){
             this.bukkitTask = Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
                 @Override
                 public void run() {
                     for (Iterator<OfflinePlayer> iterator = playerQueue.keySet().iterator(); iterator.hasNext(); ) {
                         OfflinePlayer offlinePlayer = iterator.next();
                         if(offlinePlayer.isOnline()) {
-                            Integer amount = playerQueue.get(offlinePlayer);
+                            HashMap<Integer, String> map = playerQueue.get(offlinePlayer);
+                            Integer amount = playerQueue.get(offlinePlayer).keySet().stream().collect(Collectors.toList()).get(0);
+                            String text = playerQueue.get(offlinePlayer).get(0);
                             playerQueue.remove(offlinePlayer);
-                            spawnTNT(offlinePlayer, fuse);
+                            if(map.size() <= 1) {
+                                spawnTNT(offlinePlayer.getPlayer().getLocation(), fuse, text);
+                            }else{
+                                List<Integer> list = map.keySet().stream().collect(Collectors.toList());
+                                spawnTNT(new Location(offlinePlayer.getPlayer().getWorld(), list.get(1), list.get(2), list.get(3)), fuse, text);
+                            }
                             if (amount > 1) {
-                                playerQueue.put(offlinePlayer, (amount - 1));
+                                HashMap<Integer, String> hashMap = new HashMap<>();
+                                hashMap.put((amount-1), text);
+                                if(map.size() > 1){
+                                    map.remove(amount);
+                                    map.forEach((integer, s) -> hashMap.put(integer, s));
+;                                }
+                                playerQueue.put(offlinePlayer, hashMap);
                             }
                         }else{
                             playerQueue.remove(offlinePlayer);
                         }
                     }
-                    if(queue > 0) {
-                        for(Player all : Bukkit.getOnlinePlayers()) {
-                            spawnTNT(all, fuse);
-                        }
-                        queue = ((queue - 1));
+                    if(locationMap.size() > 0){
+                        AtomicBoolean executed = new AtomicBoolean(false);
+                        try {
+                            locationMap.forEach((location, integer) -> {
+                                if (!executed.get()) {
+                                    executed.set(true);
+                                    locationMap.remove(location, integer);
+                                    spawnTNT(location, fuse, null);
+                                    integer--;
+                                    if (integer > 0) {
+                                        locationMap.put(location, integer);
+                                    }
+                                }
+                            });
+                        }catch (ConcurrentModificationException e){}
                     }
-                    if(queue <= 0 && playerQueue.isEmpty()){
+                    if(queue.size() > 0) {
+                        String value = queue.get(0);
+                        for(Player all : Bukkit.getOnlinePlayers()) {
+                            spawnTNT(all.getLocation(), fuse, value);
+                        }
+                        queue.remove(0);
+                    }
+                    if(queue.size() == 0 && playerQueue.isEmpty() && locationMap.isEmpty()){
                         stop();
                     }
                 }
@@ -122,12 +158,16 @@ public final class DelayedTNT extends JavaPlugin implements Listener {
        return this.getDelay(fuse);
     }
 
-    public void spawnTNT(OfflinePlayer offlinePlayer, Double fuse){
+    public void spawnTNT(Location location, Double fuse, String text){
         Integer subtract = this.getConfigHandler().getInteger("Position.Subtract");
         Integer add = this.getConfigHandler().getInteger("Position.Add");
-        Entity entity = offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, subtract, 0).add(0, add, 0), EntityType.AREA_EFFECT_CLOUD);
+        Entity entity = location.getWorld().spawnEntity(location.getBlock().getLocation().subtract(0, subtract, 0).add(0, add, 0), EntityType.AREA_EFFECT_CLOUD);
         ((AreaEffectCloud)entity).setDuration(0);
-        TNTPrimed tntPrimed = ((TNTPrimed)offlinePlayer.getPlayer().getWorld().spawnEntity(offlinePlayer.getPlayer().getLocation().subtract(0, subtract, 0).add(0, add, 0), EntityType.PRIMED_TNT));
+        TNTPrimed tntPrimed = ((TNTPrimed)location.getWorld().spawnEntity(location.getBlock().getLocation().subtract(0, subtract, 0).add(0, add, 0), EntityType.PRIMED_TNT));
+        if(text != null && !text.equalsIgnoreCase("")){
+            tntPrimed.setCustomNameVisible(true);
+            tntPrimed.setCustomName(text);
+        }
         tntPrimed.setFuseTicks(this.getFuse(this.fuse));
         entity.addPassenger(((Entity) tntPrimed));
         if(this.configHandler.getBoolean("Firework.Enabled") && !this.configHandler.getBoolean("Firework.OnExplode")) {
@@ -254,6 +294,10 @@ public final class DelayedTNT extends JavaPlugin implements Listener {
         }else{
             start();
         }
+    }
+
+    public HashMap<Location, Integer> getLocationMap() {
+        return locationMap;
     }
 
     private boolean isStarted(){

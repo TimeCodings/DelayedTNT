@@ -10,6 +10,12 @@ Position:
   Subtract: 1
   #TNT-Spawnlocation: The player position + Addvalue
   Add: 0
+#Optional settings for the tnt rain
+TNTRain:
+  MaxBlocksInX: 10
+  MaxBlocksInZ: 10
+  #Current player y coordinate + AddY = TNTRAIN
+  AddY: 10
 #Configurate firework effects when a tnt got spawned
 Firework:
   #Enable it by setting it to "true"

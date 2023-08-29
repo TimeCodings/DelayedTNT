@@ -38,7 +38,20 @@ public class DelayedCommandCompleter implements TabCompleter {
                 list.add("40");
                 list.add("50");
             }
+        } else if (command.getName().equalsIgnoreCase("tntrain")) {
+            if(strings.length > 0 && strings.length < 4){
+                list.add("1");
+                list.add("2");
+                list.add("10");
+                list.add("20");
+                list.add("30");
+                list.add("40");
+                list.add("50");
+            }else if(strings.length == 4){
+                Bukkit.getOnlinePlayers().forEach(player -> list.add(player.getName()));
             }
+        }
+
         return list;
     }
 }
